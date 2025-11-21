@@ -6,7 +6,7 @@ export default function Header() {
             <img
                 src={headerImg}
                 alt="Header"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover rounded-md select-none"
             />
         </header>
     )

@@ -51,29 +51,27 @@ export default function Profile({
     return (
         <div className="w-full flex justify-between items-start bg-transparent p-3 rounded-md border-b-[0.5px] border-gray-700/30">
             {/* Left: avatar (larger) with flag and name/bio placed bottom-right of avatar */}
-            <div className="flex items-start w-[66%] min-w-0">
-                <div className="relative flex-shrink-0">
-                    <img
-                        src={imgSrc}
-                        alt="profile"
-                        className="w-32 h-32 sm:w-40 sm:h-40 rounded-full ring-1 ring-gray-700/60 bg-transparent select-none object-cover"
-                    />
+            <div className="flex items-center w-[66%] min-w-0 gap-3">
+                <img
+                    src={imgSrc}
+                    alt="profile"
+                    className="w-32 h-32 sm:w-40 sm:h-40 rounded-full ring-1 ring-gray-700/60 bg-transparent select-none object-cover flex-shrink-0"
+                />
 
-                    {/* larger flag at top-left of avatar */}
-                    {/* <img
-                        src={FLAG_URL}
-                        alt="IN"
-                        className="absolute -top-1 -left-1 w-14 h-10 sm:w-16 sm:h-12 rounded-sm border-[0.5px] border-white/10 shadow-sm object-cover"
-                    /> */}
-
-                    {/* username + bio placed to the right-bottom of avatar (bottom-ish) */}
-                    <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 sm:top-auto sm:bottom-2 sm:-translate-y-0">
-                        <div className="text-xl sm:text-2xl font-semibold text-white leading-tight">kajutakli</div>
-                        <div className="text-sm text-gray-300">nullptr.</div>
+                {/* text block always to the right of avatar; truncation prevents overflow */}
+                <div className="mt-10 sm:mt-13 flex flex-col justify-center min-w-0">
+                    <div className="font-semibold text-white leading-tight text-xl sm:text-2xl md:text-3xl lg:text-4xl truncate max-w-[20ch]">
+                        Kaju Takli
+                    </div>
+                    <div className="mt-0 sm:mt-1 text-sm sm:text-base text-gray-300">
+                        nullptr.
+                    </div>
+                    <div className="mt-0 sm:mt-1 text-sm text-gray-300 whitespace-nowrap">
+                        India
                     </div>
                 </div>
 
-                {/* keep this empty spacer so layout remains stable */}
+                {/* spacer kept for layout parity on wide screens */}
                 <div className="ml-[calc(40px+0.75rem)] hidden sm:block" />
             </div>
 
