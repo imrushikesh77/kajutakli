@@ -48,8 +48,122 @@ export default function Profile({
                 {/* text block always to the right of avatar; truncation prevents overflow */}
                 <div className="mt-10 sm:mt-13 flex flex-col justify-center min-w-0">
                     <div className="font-semibold text-white leading-tight text-xl sm:text-2xl md:text-3xl lg:text-4xl truncate max-w-[20ch]">
-                        Kaju Takli
+                        {/*
+                          Per-letter animated name.
+                          - Kaju letters use orange (#FF7A18)
+                          - Takli letters use blue (#1E90FF)
+                          - On pointer enter we set CSS vars (--mx, --my) and animate --r via clip-path on ::after
+                        */}
+                        {"Kaju Takli".split('').map((ch, i) => {
+                            const isSpace = ch === ' ';
+                            const inFirstWord = i < 4; // "Kaju" length = 4
+                            const color = isSpace ? undefined : (inFirstWord ? '#DB4400' : '#0048FF');
+
+                            const handlePointerEnter = (ev) => {
+                                const el = ev.currentTarget;
+                                if (!el) return;
+                                const rect = el.getBoundingClientRect();
+                                const x = ((ev.clientX - rect.left) / rect.width) * 100;
+                                const y = ((ev.clientY - rect.top) / rect.height) * 100;
+                                // set center
+                                el.style.setProperty('--mx', `${x}%`);
+                                el.style.setProperty('--my', `${y}%`);
+                                // start small then expand to fill
+                                const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                                el.style.setProperty('--r', reduced ? '150%' : '0%');
+                                // force reflow then expand (for animation)
+                                // use requestAnimationFrame to ensure the initial value is applied
+                                requestAnimationFrame(() => {
+                                    el.style.setProperty('--r', '150%');
+                                });
+                            };
+
+                            const handlePointerLeave = (ev) => {
+                                const el = ev.currentTarget;
+                                if (!el) return;
+                                const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                                el.style.setProperty('--r', reduced ? '0%' : '0%');
+                            };
+
+                            if (isSpace) {
+                                return <span key={i} className="inline-block w-2" />;
+                            }
+
+                            return (
+                                <span
+                                    key={i}
+                                    data-char={ch}
+                                    className="name-letter inline-block relative select-none"
+                                    onPointerEnter={handlePointerEnter}
+                                    onPointerLeave={handlePointerLeave}
+                                    // assign the color var so CSS can pick it for ::after
+                                    style={{ ['--c']: color }}
+                                >
+                                    {ch}
+                                </span>
+                            );
+                        })}
                     </div>
+                    <style>{`
+                      .name-letter {
+                        --mx: 50%;
+                        --my: 50%;
+                        --r: 0%;
+                        --c: #FF7700;
+                        position: relative;
+                        display: inline-block;
+                        line-height: 1;
+                        /* make the actual element paint-less — rendered by pseudos to avoid halo/stroke */
+                        color: transparent;
+                        padding: 0 1px;
+                        -webkit-font-smoothing: antialiased;
+                        backface-visibility: hidden;
+                        transform: translateZ(0);
+                        will-change: opacity, transform;
+                      }
+
+                      /* base white glyph (beneath) */
+                      .name-letter::before {
+                        content: attr(data-char);
+                        position: absolute;
+                        inset: 0;
+                        color: #ffffff;
+                        pointer-events: none;
+                        text-shadow: none;
+                        -webkit-text-stroke: 0px transparent;
+                        -webkit-font-smoothing: antialiased;
+                        backface-visibility: hidden;
+                        transform: translateZ(0);
+                        z-index: 1;
+                      }
+
+                      /* colored overlay duplicates the character and is revealed with clip-path circle */
+                      .name-letter::after {
+                        content: attr(data-char);
+                        position: absolute;
+                        inset: 0;
+                        color: var(--c);
+                        pointer-events: none;
+                        text-shadow: none;
+                        -webkit-text-stroke: 0px transparent;
+                        -webkit-font-smoothing: antialiased;
+                        backface-visibility: hidden;
+                        transform: translateZ(0);
+                        z-index: 2;
+                        /* reveal via circular clip centered at pointer entry */
+                        clip-path: circle(var(--r) at var(--mx) var(--my));
+                        -webkit-clip-path: circle(var(--r) at var(--mx) var(--my));
+                        transition: clip-path 420ms cubic-bezier(.2,.9,.2,1), -webkit-clip-path 420ms cubic-bezier(.2,.9,.2,1);
+                        will-change: clip-path;
+                      }
+
+                      /* respect reduced motion: jump instead of animate */
+                      @media (prefers-reduced-motion: reduce) {
+                        .name-letter::after {
+                          transition: none;
+                        }
+                      }
+                     `}</style>
                     <div className="mt-0 sm:mt-1 text-sm sm:text-base text-gray-300">
                         <i>nullptr.</i>
                     </div>

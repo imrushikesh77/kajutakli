@@ -20,7 +20,7 @@ export default function Quote({
                     “{text}”
                 </p>
 
-                <p className="mt-4 text-right italic text-pretty text-white font-mono text-highlight">
+                <p className="mt-4 text-right italic text-pretty text-white font-mono text-highlight hover:text-orange-400 transition duration-300">
                     — {author}
                 </p>
             </div>
