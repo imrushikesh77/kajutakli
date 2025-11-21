@@ -42,7 +42,7 @@ export default function Profile({
                 <img
                     src={imgSrc}
                     alt="profile"
-                    className="w-32 h-32 sm:w-40 sm:h-40 rounded-full ring-1 ring-gray-700/60 bg-transparent select-none object-cover flex-shrink-0"
+                    className="w-30 h-30 sm:w-40 sm:h-40 rounded-full ring-1 ring-gray-700/60 bg-transparent select-none object-cover flex-shrink-0"
                 />
 
                 {/* text block always to the right of avatar; truncation prevents overflow */}
