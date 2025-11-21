@@ -88,7 +88,7 @@ export default function AboutSection() {
                             );
                         })}
                     </span>{' '}
-                    — <span className="text-gray-300 font-semibold">A Software developer (Backend).</span>
+                    — <span className="text-gray-300 font-semibold">A Software Developer.</span>
                 </h2>
                 <p className="mt-4 text-gray-300 max-w-3xl">
                     I love to build scalable backend systems using{" "}
