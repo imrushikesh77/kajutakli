@@ -1,4 +1,6 @@
 import profileImg from "@/assets/profile.png";
+import { FaGithub, FaLinkedin } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
 
 const FLAG_URL = "https://knowindia.india.gov.in/assets/images/national_flag_inner.jpg";
 const FAVICONS = {
@@ -16,30 +18,15 @@ export default function Profile({
     const imgSrc = profileSrc || profileImg;
 
     const Icons = {
-        x: (props) => (
-            <svg viewBox="0 0 24 24" {...props}>
-                <path
-                    d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"
-                    fill="currentColor"
-                />
-            </svg>
-        ),
-        github: (props) => (
-            <svg viewBox="0 0 24 24" {...props}>
-                <path
-                    d="M12 .297a12 12 0 00-3.793 23.4c.6.11.82-.26.82-.577 0-.285-.01-1.04-.015-2.04-3.338.725-4.042-1.61-4.042-1.61-.546-1.386-1.333-1.756-1.333-1.756-1.09-.745.082-.73.082-.73 1.205.085 1.84 1.237 1.84 1.237 1.07 1.835 2.807 1.305 3.492.998.108-.775.418-1.305.76-1.605-2.665-.303-5.467-1.332-5.467-5.93 0-1.31.468-2.38 1.236-3.22-.124-.302-.536-1.52.117-3.166 0 0 1.008-.323 3.3 1.23a11.5 11.5 0 016 0c2.29-1.553 3.297-1.23 3.297-1.23.656 1.646.244 2.864.12 3.166.77.84 1.235 1.91 1.235 3.22 0 4.61-2.807 5.625-5.48 5.92.43.37.823 1.096.823 2.21 0 1.596-.014 2.882-.014 3.276 0 .32.216.694.825.576A12 12 0 0012 .297"
-                    fill="currentColor"
-                />
-            </svg>
-        ),
-        linkedin: (props) => (
-            <svg preserveAspectRatio="xMidYMid" viewBox="0 0 256 256" {...props}>
-                <path
-                    d="M218.123 218.127h-37.931v-59.403c0-14.165-.253-32.4-19.728-32.4-19.756 0-22.779 15.434-22.779 31.369v60.43h-37.93V95.967h36.413v16.694h.51a39.907 39.907 0 0 1 35.928-19.733c38.445 0 45.533 25.288 45.533 58.186l-.016 67.013ZM56.955 79.27c-12.157.002-22.014-9.852-22.016-22.009-.002-12.157 9.851-22.014 22.008-22.016 12.157-.003 22.014 9.851 22.016 22.008A22.013 22.013 0 0 1 56.955 79.27m18.966 138.858H37.95V95.967h37.97v122.16ZM237.033.018H18.89C8.58-.098.125 8.161-.001 18.471v219.053c.122 10.315 8.576 18.582 18.89 18.474h218.144c10.336.128 18.823-8.139 18.966-18.474V18.454c-.147-10.33-8.635-18.588-18.966-18.453"
-                    fill="currentColor"
-                />
-            </svg>
-        ),
+        x: FaXTwitter, // use Twitter icon for X branding (or replace with FaX if available)
+        github: FaGithub,
+        linkedin: FaLinkedin,
+    };
+
+    const ICON_COLOR = {
+        x: "#ffffffff",         // X: black (or use '#1DA1F2' for old Twitter blue)
+        github: "#9CA3AF",    // subtle gray for dark theme
+        linkedin: "#0A66C2",  // LinkedIn blue
     };
 
     const socials = [
@@ -64,7 +51,7 @@ export default function Profile({
                         Kaju Takli
                     </div>
                     <div className="mt-0 sm:mt-1 text-sm sm:text-base text-gray-300">
-                        nullptr.
+                        <i>nullptr.</i>
                     </div>
                     <div className="mt-0 sm:mt-1 text-sm text-gray-300 whitespace-nowrap">
                         India
@@ -127,6 +114,7 @@ export default function Profile({
             <div className="flex flex-col items-stretch w-[34%] max-w-[220px] space-y-2 min-w-0 socials-col">
                 {socials.map((s) => {
                     const Icon = s.Icon;
+                    const color = ICON_COLOR[s.key] || "#FFF";
                     return (
                         <a
                             key={s.key}
@@ -136,8 +124,11 @@ export default function Profile({
                             className="social-item w-full flex items-center justify-between gap-2 bg-transparent border border-gray-800/60 rounded-md px-2 py-1.5 hover:bg-gray-800/30 transition"
                         >
                             <div className="flex items-center gap-2 min-w-0">
-                                <div className="icon-wrapper w-9 h-9 rounded-full bg-[#0b0b0b] flex items-center justify-center overflow-hidden border border-gray-700">
-                                    <Icon className="w-5 h-5 text-white" />
+                                <div
+                                    className="icon-wrapper w-9 h-9 rounded-full bg-[#0b0b0b] flex items-center justify-center overflow-hidden border border-gray-700"
+                                    aria-hidden="true"
+                                >
+                                    <Icon className="w-5 h-5" color={color} />
                                 </div>
 
                                 <div className="social-text flex flex-col min-w-0">
