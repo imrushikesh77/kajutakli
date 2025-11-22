@@ -11,10 +11,11 @@ import k8sImg from "@/assets/blogs/k8s-in-bits.jpeg"
  */
 export const posts = [
     {
-        slug: "k8s-in-bits",
-        title: "K8s in bits",
+        slug: "k8s-in-noobs-way",
+        title: "K8s in noob's way",
         excerpt: "Archive of links and short notes for Kubernetes tutorials, patterns and tips.",
         tags: ["Kubernetes", "Development", "Backend"],
+        publishedAt: "2025-11-22",
         image: k8sImg,
         component: K8sInBits,
     }

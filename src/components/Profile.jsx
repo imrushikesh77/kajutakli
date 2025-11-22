@@ -1,45 +1,113 @@
 import profileImg from "@/assets/profile.png";
-import { FaGithub, FaLinkedin } from "react-icons/fa";
-import { FaXTwitter } from "react-icons/fa6";
-
-const FLAG_URL = "https://knowindia.india.gov.in/assets/images/national_flag_inner.jpg";
-const FAVICONS = {
-    x: "https://x.com/favicon.ico",
-    github: "https://github.com/favicon.ico",
-    linkedin: "https://www.linkedin.com/favicon.ico",
-};
+import React, { useEffect, useRef, useState } from "react";
+import { RiTwitterXLine } from "react-icons/ri";
+import { LiaMediumM, LiaLinkedinIn, LiaGithub } from "react-icons/lia";
+import { createPortal } from "react-dom";
 
 export default function Profile({
     profileSrc,
     xHref = "https://x.com/kaju_takli",
     githubHref = "https://github.com/imrushikesh77",
     linkedinHref = "https://www.linkedin.com/in/imrushikesh77",
+    mediumHref = "https://medium.com/@ikajutakli",
 }) {
     const imgSrc = profileSrc || profileImg;
+    const avatarRef = useRef(null);
+    const [showSticky, setShowSticky] = useState(false);
+    const [anchorPos, setAnchorPos] = useState({ left: 16, top: 16, width: 0 });
+
+    useEffect(() => {
+        const el = avatarRef.current;
+        if (!el) return;
+        const obs = new IntersectionObserver(
+            (entries) => {
+                const entry = entries[0];
+                // when original avatar is NOT intersecting viewport, show sticky
+                setShowSticky(!entry.isIntersecting);
+            },
+            { threshold: 0 }
+        );
+        obs.observe(el);
+        return () => obs.disconnect();
+    }, []);
+
+    // compute top-left of the "middle section" (closest centered/container ancestor)
+    useEffect(() => {
+        let raf = 0;
+
+        function findAnchor(el) {
+            // walk up from avatarRef to find a centered/container element
+            let cur = el?.parentElement;
+            while (cur && cur !== document.body) {
+                const style = window.getComputedStyle(cur);
+                // prefer elements with auto margins (centered) or common container classes
+                if (style.marginLeft === "auto" && style.marginRight === "auto") return cur;
+                if (cur.classList.contains("mx-auto") || cur.classList.contains("container") || /max-w-/.test([...cur.classList].join(" "))) return cur;
+                cur = cur.parentElement;
+            }
+            // fallback to body
+            return document.body;
+        }
+
+        function updatePos() {
+            cancelAnimationFrame(raf);
+            raf = requestAnimationFrame(() => {
+                const anchor = findAnchor(avatarRef.current);
+                const rect = anchor.getBoundingClientRect();
+
+                // include the anchor's horizontal padding so the belt covers the full inner area
+                const style = window.getComputedStyle(anchor);
+                const padL = parseFloat(style.paddingLeft) || 0;
+                const padR = parseFloat(style.paddingRight) || 0;
+                // expand left by padding-left and expand width by both paddings
+                let left = rect.left - padL;
+                let width = rect.width + padL + padR;
+                // clamp to viewport so the belt never overflows the visible area
+                left = Math.max(0, left);
+                width = Math.min(width, window.innerWidth - left);
+                const top = rect.top;
+                setAnchorPos({ left, top, width });
+            });
+        }
+
+        // initial
+        updatePos();
+        window.addEventListener("resize", updatePos);
+        window.addEventListener("scroll", updatePos, { passive: true });
+        return () => {
+            cancelAnimationFrame(raf);
+            window.removeEventListener("resize", updatePos);
+            window.removeEventListener("scroll", updatePos);
+        };
+    }, []);
 
     const Icons = {
-        x: FaXTwitter, // use Twitter icon for X branding (or replace with FaX if available)
-        github: FaGithub,
-        linkedin: FaLinkedin,
+        x: RiTwitterXLine, // use Twitter icon for X branding (or replace with FaX if available)
+        github: LiaGithub,
+        linkedin: LiaLinkedinIn,
+        medium: LiaMediumM,
     };
 
     const ICON_COLOR = {
-        x: "#ffffffff",         // X: black (or use '#1DA1F2' for old Twitter blue)
-        github: "#9CA3AF",    // subtle gray for dark theme
-        linkedin: "#0A66C2",  // LinkedIn blue
+        x: "#ffffffff",
+        github: "#ffffffff",
+        linkedin: "#ffffffff",
+        medium: "#ffffffff",
     };
 
     const socials = [
-        { key: "x", title: "X (Twitter)", subtitle: "@kaju_takli", href: xHref, Icon: Icons.x },
+        { key: "x", title: "X", subtitle: "@kaju_takli", href: xHref, Icon: Icons.x },
         { key: "github", title: "GitHub", subtitle: "imrushikesh77", href: githubHref, Icon: Icons.github },
         { key: "linkedin", title: "LinkedIn", subtitle: "imrushikesh77", href: linkedinHref, Icon: Icons.linkedin },
+        { key: "medium", title: "Medium", subtitle: "@kajutakli", href: mediumHref, Icon: Icons.medium },
     ];
 
     return (
-        <div className="w-full flex justify-between items-start bg-transparent p-3 rounded-md border-b-[0.5px] border-gray-700/30">
+        <div className="w-full flex justify-between items-center bg-transparent p-3 rounded-md border-b-[0.5px] border-gray-700/30">
             {/* Left: avatar (larger) with flag and name/bio placed bottom-right of avatar */}
             <div className="flex items-center w-[66%] min-w-0 gap-3">
                 <img
+                    ref={avatarRef}
                     src={imgSrc}
                     alt="profile"
                     className="w-30 h-30 sm:w-40 sm:h-40 rounded-full ring-1 ring-gray-700/60 bg-transparent select-none object-cover flex-shrink-0"
@@ -176,56 +244,8 @@ export default function Profile({
                 <div className="ml-[calc(40px+0.75rem)] hidden sm:block" />
             </div>
 
-            {/* responsive rules for socials (550px / 460px) */}
-            <style>{`
-              /* default: show title+subtitle, socials column stretches */
-              .social-subtitle { display: inline-block; }
-              .social-title { display: inline-block; }
-              .social-text { display: flex; }
-              .social-item { width: 100%; display: flex; }
-              .icon-wrapper svg { width: 20px; height: 20px; }
-              .chev { display: inline-block; } /* default: show chevron */
-
-              /* <= 550px: hide subtitle, hide chevron, show icon + title only, center social boxes and shrink to content */
-              @media (max-width: 550px) {
-                .social-subtitle { display: none !important; }
-                .chev { display: none !important; }
-                .socials-col { width: auto !important; max-width: none !important; align-items: center !important; }
-                .social-item { 
-                  width: auto !important;
-                  padding: 6px 10px !important;
-                  justify-content: center !important;
-                  gap: .5rem !important;
-                }
-                .icon-wrapper { width: 36px !important; height: 36px !important; border-radius: 8px !important; }
-                .icon-wrapper svg { width: 18px !important; height: 18px !important; }
-              }
-
-              /* <= 460px: hide titles, hide chevron, show icons only as square buttons aligned to the right */
-              @media (max-width: 460px) {
-                .social-title { display: none !important; }
-                .social-text { display: none !important; }
-                .chev { display: none !important; }
-                .social-item {
-                  width: 44px !important;
-                  height: 44px !important;
-                  padding: 0 !important;
-                  border-radius: 8px !important;
-                  justify-content: center !important;
-                }
-                .icon-wrapper {
-                  width: 100% !important;
-                  height: 100% !important;
-                  border-radius: 8px !important;
-                }
-                .icon-wrapper svg { width: 20px !important; height: 20px !important; }
-                /* keep the column aligned to the right when only icons remain */
-                .socials-col { width: auto !important; max-width: none !important; align-items: flex-end !important; }
-              }
-            `}</style>
-
-            {/* Right: social links (smaller) */}
-            <div className="flex flex-col items-stretch w-[34%] max-w-[220px] space-y-2 min-w-0 socials-col">
+            {/* Right: socials as centered 2x2 icon grid */}
+            <div className="grid grid-cols-2 gap-3 justify-items-center content-center">
                 {socials.map((s) => {
                     const Icon = s.Icon;
                     const color = ICON_COLOR[s.key] || "#FFF";
@@ -235,29 +255,65 @@ export default function Profile({
                             href={s.href}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="social-item w-full flex items-center justify-between gap-2 bg-transparent border border-gray-800/60 rounded-md px-2 py-1.5 hover:bg-gray-800/30 transition"
+                            aria-label={s.title}
+                            className="w-14 h-14 sm:w-14 sm:h-14 rounded-lg border border-gray-800/60 flex items-center justify-center bg-transparent hover:bg-gray-800/30 transition-transform duration-150 ease-out hover:-translate-y-0.5"
                         >
-                            <div className="flex items-center gap-2 min-w-0">
-                                <div
-                                    className="icon-wrapper w-9 h-9 rounded-full bg-[#0b0b0b] flex items-center justify-center overflow-hidden border border-gray-700"
-                                    aria-hidden="true"
-                                >
-                                    <Icon className="w-5 h-5" color={color} />
-                                </div>
-
-                                <div className="social-text flex flex-col min-w-0">
-                                    <span className="social-title text-sm font-medium text-white truncate">{s.title}</span>
-                                    <span className="social-subtitle text-xs text-gray-400 truncate">{s.subtitle}</span>
-                                </div>
-                            </div>
-
-                            <svg xmlns="http://www.w3.org/2000/svg" className="chev w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5" aria-hidden>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                            </svg>
+                            {/* icon fills the whole box */}
+                            <Icon
+                                className="w-full h-full p-1"
+                                color={color}
+                                aria-hidden="true"
+                                preserveAspectRatio="xMidYMid slice"
+                            />
                         </a>
                     );
                 })}
             </div>
+            {/* render sticky avatar into document.body so it isn't clipped by transformed/overflowed parents */}
+            {typeof document !== "undefined" &&
+                createPortal(
+                    // glassy/blurry "belt" anchored to middle section behind the sticky avatar
+                    // - rigid top & bottom borders only (border-t & border-b)
+                    // - left/right edges smoothly fade using CSS mask-image
+                    <div
+                        aria-hidden="true"
+                        style={{
+                            left: `${anchorPos.left}px`,
+                            top: `${anchorPos.top}px`,
+                            width: `${anchorPos.width}px`,
+                            height: "56px",
+                            // fade the left/right edges via mask so borders/contents vanish smoothly
+                            WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)",
+                            maskImage: "linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)",
+                        }}
+                        className={
+                            "fixed rounded-md overflow-hidden backdrop-blur-md bg-white/5 dark:bg-white/5 border-t border-b border-gray-700/30 z-[9998] transition-all duration-200 " +
+                            (showSticky ? "opacity-100" : "opacity-0 pointer-events-none")
+                        }
+                    />,
+                    document.body
+                )}
+            {typeof document !== "undefined" &&
+                createPortal(
+                    // center avatar vertically inside the 56px belt by placing top at belt midpoint
+                    <img
+                        src={imgSrc}
+                        alt=""
+                        aria-hidden
+                        style={{
+                            left: `${anchorPos.left}px`,
+                            // belt height is 56px -> place top at anchor top + 28px then translateY(-50%)
+                            top: `${anchorPos.top + 28}px`,
+                            // use inline transform to keep translateY(-50%) plus scale for the show/hide animation
+                            transform: showSticky ? "translateY(-50%) scale(1)" : "translateY(-50%) scale(.9)",
+                        }}
+                        className={
+                            "fixed w-10 h-10 sm:w-12 sm:h-12 rounded-full ring-1 ring-gray-700/60 bg-transparent z-[9999] transition-all duration-200 " +
+                            (showSticky ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none")
+                        }
+                    />,
+                    document.body
+                )}
         </div >
     );
 }

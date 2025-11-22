@@ -1,4 +1,4 @@
-import React from "react";
+import ThinLine from "@/components/ThinLine";
 import { posts as allPosts } from "@/blogs/Posts";
 
 export default function BlogPostView({ slug, onNavigate = () => { } }) {
@@ -108,14 +108,14 @@ export default function BlogPostView({ slug, onNavigate = () => { } }) {
                 {post.excerpt && <p className="text-gray-400 mb-4">{post.excerpt}</p>}
             </header>
 
-            <div className="w-full h-px bg-gray-700/30 my-6" />
+            <ThinLine />
 
             {/* content */}
             <div className="prose prose-invert max-w-none text-gray-200">
                 <PostComponent />
             </div>
 
-            <div className="w-full h-px bg-gray-700/30 my-8" />
+            <ThinLine />
 
             {/* footer actions */}
             <footer className="flex items-center justify-between text-sm text-gray-400">
