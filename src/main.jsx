@@ -4,8 +4,17 @@ import './index.css'
 import "./App.css";
 import App from '@/App'
 
+import { PostHogProvider } from 'posthog-js/react'
+
+const options = {
+  api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,
+  defaults: '2025-05-24',
+}
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App />
+    <PostHogProvider apiKey={import.meta.env.VITE_PUBLIC_POSTHOG_KEY} options={options}>
+      <App />
+    </PostHogProvider>
   </StrictMode>,
 )
